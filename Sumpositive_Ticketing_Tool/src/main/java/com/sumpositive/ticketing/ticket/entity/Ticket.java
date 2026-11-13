@@ -72,6 +72,4 @@ public class Ticket {
 	protected void onUpdate() {
 		updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
 	}
-	
-	
 }
