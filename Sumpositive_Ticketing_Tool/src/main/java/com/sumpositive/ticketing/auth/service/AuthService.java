@@ -11,6 +11,7 @@ import com.sumpositive.ticketing.common.exception.DuplicateResourceException;
 import com.sumpositive.ticketing.common.exception.InvalidCredentialsException;
 import com.sumpositive.ticketing.security.JwtSecurity;
 import com.sumpositive.ticketing.user.entity.User;
+import com.sumpositive.ticketing.user.enums.UserRole;
 import com.sumpositive.ticketing.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -42,25 +43,42 @@ public class AuthService implements AuthServiceIMPL{
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		
 		user.setActive(true);
+		
+		user.setUserRole(UserRole.EMPLOYEE);
 		return userRepository.save(user);
 	}
 
 	@Override
 	public LoginResponse loginUser(LoginRequest request) {
-		User user = userRepository.findByEmail(request.getEmail())
-															  .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
-		
-		if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-				throw new InvalidCredentialsException("Invalid email or password");
-		}
-		
-		if(!user.isActive()) {
-			throw new InvalidCredentialsException("user account is inactive");
-		}
-		
-		String token = jwtSecurity.generateToken(user.getEmail());
-		
-		return new LoginResponse(user.getId(), user.getFullName(), user.getEmail(), token, "Login successful");
-	}
 
+	    User user = userRepository.findByEmail(request.getEmail())
+	            .orElseThrow(() -> new InvalidCredentialsException(
+	                    "Email not registered"));
+
+	    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+	        throw new InvalidCredentialsException("Incorrect password");
+	    }
+
+	    if (!user.isActive()) {
+	        throw new InvalidCredentialsException("Your account is inactive");
+	    }
+
+	    if (request.getRole() == null ||
+	            !request.getRole().equals(user.getUserRole())) {
+
+	        throw new InvalidCredentialsException(
+	                "Role mismatch. Your registered role is: " + user.getUserRole());
+	    }
+
+	    String token = jwtSecurity.generateToken(user.getEmail());
+
+	    return new LoginResponse(
+	            user.getId(),
+	            user.getFullName(),
+	            user.getEmail(),
+	            token,
+	            "Login successful",
+	            user.getUserRole()
+	    );
+	}
 }
