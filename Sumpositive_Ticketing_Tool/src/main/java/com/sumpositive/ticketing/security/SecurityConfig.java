@@ -17,10 +17,7 @@ public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final JwtAuthenticationEntryPoint  authenticationEntryPoint;
 	
-	public SecurityConfig(
-	        JwtAuthenticationFilter jwtAuthenticationFilter,
-	        JwtAuthenticationEntryPoint authenticationEntryPoint) {
-
+	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,JwtAuthenticationEntryPoint authenticationEntryPoint) {
 	    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 	    this.authenticationEntryPoint = authenticationEntryPoint;
 	}
@@ -30,13 +27,19 @@ public class SecurityConfig {
 		http.cors(Customizer.withDefaults())
 				.csrf(csrf -> csrf.disable())
 				.exceptionHandling(exception -> exception
-					    .authenticationEntryPoint(authenticationEntryPoint))
+					    .authenticationEntryPoint(authenticationEntryPoint)
+	            )
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 				.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
 						              													 .requestMatchers("/api/auth/**").permitAll()
 						              													 .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
-						              													 .anyRequest()	.authenticated()) 
+						              													 .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "PROJECT_MANAGER", "HR", "TEAM_LEADER", "DEVELOPER", "TESTER", "SUPPORT_ENGINEER", "EMPLOYEE") //Accessing Dashboard
+						              													 .requestMatchers("/api/users/**").hasRole("ADMIN") //user Administration
+						              													 .requestMatchers(HttpMethod.DELETE, "/api/tickets/**").hasAnyRole("ADMIN", "MANAGER")
+						              													 .requestMatchers("/api/tickets/**").hasAnyRole("ADMIN", "PROJECT_MANAGER", "HR", "TEAM_LEADER", "DEVELOPER", "TESTER", "SUPPORT_ENGINEER", "EMPLOYEE")   // Accessing Ticket
+						              													 .anyRequest().authenticated()
+						              													 ) 
 		        .addFilterBefore(
 			           jwtAuthenticationFilter,
 			          UsernamePasswordAuthenticationFilter.class
