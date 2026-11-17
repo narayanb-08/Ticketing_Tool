@@ -1,7 +1,11 @@
 package com.sumpositive.ticketing.user.entity;
 
+import com.sumpositive.ticketing.user.enums.UserRole;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,4 +31,8 @@ public class User {
 	
 	@Column(nullable = false)
 		private boolean active;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "user_role",length = 20)
+	private UserRole userRole;
 }

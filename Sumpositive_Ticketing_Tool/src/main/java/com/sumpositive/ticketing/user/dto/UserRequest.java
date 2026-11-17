@@ -1,7 +1,10 @@
 package com.sumpositive.ticketing.user.dto;
 
+import com.sumpositive.ticketing.user.enums.UserRole;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class UserRequest {
@@ -15,6 +18,9 @@ public class UserRequest {
 		@Email(message = "Please provide a valid email address")
 		@Size(max = 150, message = "Email cannot exceed 150 character")
 		private String email;
+		
+		@NotNull(message = "User role is required")
+		private UserRole userRole;
 
 
 		public UserRequest() {
@@ -22,9 +28,10 @@ public class UserRequest {
 		}
 
 
-		public UserRequest(String fullName, String email) {
+		public UserRequest(String fullName, String email, UserRole userRole) {
 			this.fullName = fullName;
 			this.email = email;
+			this.userRole = userRole;
 		}
 
 
@@ -47,5 +54,11 @@ public class UserRequest {
 			this.email = email;
 		}
 		
-		
+		public UserRole getRole() {
+	        return userRole;
+	    }
+
+	    public void setRole(UserRole userRole) {
+	        this.userRole = userRole;
+	    }
 }

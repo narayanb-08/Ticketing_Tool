@@ -14,7 +14,8 @@ public class UserMapper {
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
-                user.isActive()
+                user.isActive(),
+                user.getUserRole()
         );
     }
 	
@@ -22,6 +23,7 @@ public class UserMapper {
 		User user = new User();
 		user.setFullName(request.getFullName());
 		user.setEmail(request.getEmail());
+		user.setUserRole(request.getRole());
 		
 		return user;
 	}
@@ -30,6 +32,7 @@ public class UserMapper {
 		public void updateEntity(User user, UserRequest request) {
 			user.setFullName(request.getFullName());
 			user.setEmail(request.getEmail());
+			user.setUserRole(request.getRole());
 		
 	}
 }
