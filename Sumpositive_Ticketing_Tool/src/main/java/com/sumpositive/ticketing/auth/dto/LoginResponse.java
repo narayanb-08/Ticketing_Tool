@@ -1,21 +1,28 @@
 package com.sumpositive.ticketing.auth.dto;
 
+import com.sumpositive.ticketing.user.enums.UserRole;
+
 public class LoginResponse {
 	private long id;
 	private String fullName;
 	private String email;
 	private String token;
 	private String message;
+	private UserRole role;
+	
+	
 	public LoginResponse() {
-		super();
+		
 	}
-	public LoginResponse(long id, String fullName, String email, String token, String message) {
+	
+	public LoginResponse(long id, String fullName, String email, String token, String message, UserRole role) {
 		super();
 		this.id = id;
 		this.fullName = fullName;
 		this.email = email;
 		this.token = token;
 		this.message = message;
+		this.role = role;
 	}
 	public long getId() {
 		return id;
@@ -46,6 +53,14 @@ public class LoginResponse {
 	}
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public UserRole getRole() {
+		return role;
+	}
+
+	public void setRole(UserRole role) {
+		this.role = role;
 	}
 	
 	
