@@ -1,7 +1,10 @@
 package com.sumpositive.ticketing.auth.dto;
 
+import com.sumpositive.ticketing.user.enums.UserRole;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
@@ -17,15 +20,11 @@ public class RegisterRequest {
 	@NotBlank(message = "password is required")
 	@Size(min = 8, max = 100,message = "Password must contain between 8 and 100 characters")
 	private String password;
-
+	
+	@NotNull(message = "Please select a role")
+    private UserRole role;
+	
 	public RegisterRequest() {
-	}
-
-	public RegisterRequest(String fullName, String email, String password) {
-		super();
-		this.fullName = fullName;
-		this.email = email;
-		this.password = password;
 	}
 
 	public String getFullName() {
@@ -53,4 +52,12 @@ public class RegisterRequest {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+	public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
 }
