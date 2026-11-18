@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.sumpositive.ticketing.user.entity.User;
+import com.sumpositive.ticketing.user.enums.AccountStatus;
 import com.sumpositive.ticketing.user.repository.UserRepository;
 
 import io.jsonwebtoken.JwtException;
@@ -52,9 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 				if(email != null && jwtSecurity.validateToken(token,email)   &&   SecurityContextHolder.getContext().getAuthentication() == null) {
 					
 					User user = userRepository.findByEmail(email).orElse(null);
-					if(user != null  &&  user.isActive()  &&  user.getUserRole() != null) {
-						SimpleGrantedAuthority authority = new SimpleGrantedAuthority("Role_"+ user.getUserRole().name());
-					
+					if (user != null
+					        && user.isActive()
+					        && user.getUserRole() != null
+					        && (user.getAccountStatus() == AccountStatus.PENDING
+					            || user.getAccountStatus() == AccountStatus.APPROVED)) {
+						SimpleGrantedAuthority authority =
+						        new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name());					
 					
 					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user.getEmail(),null,List.of(authority));
 					
