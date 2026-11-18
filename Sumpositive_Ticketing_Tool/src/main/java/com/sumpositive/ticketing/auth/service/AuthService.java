@@ -11,6 +11,7 @@ import com.sumpositive.ticketing.common.exception.DuplicateResourceException;
 import com.sumpositive.ticketing.common.exception.InvalidCredentialsException;
 import com.sumpositive.ticketing.security.JwtSecurity;
 import com.sumpositive.ticketing.user.entity.User;
+import com.sumpositive.ticketing.user.enums.AccountStatus;
 import com.sumpositive.ticketing.user.enums.UserRole;
 import com.sumpositive.ticketing.user.repository.UserRepository;
 
@@ -41,10 +42,9 @@ public class AuthService implements AuthServiceIMPL{
 		user.setFullName(request.getFullName());
 		user.setEmail(request.getEmail());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
-		
 		user.setActive(true);
-		
 		user.setUserRole(UserRole.EMPLOYEE);
+		user.setAccountStatus(AccountStatus.PENDING);
 		return userRepository.save(user);
 	}
 
