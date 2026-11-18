@@ -1,5 +1,6 @@
 package com.sumpositive.ticketing.user.entity;
 
+import com.sumpositive.ticketing.user.enums.AccountStatus;
 import com.sumpositive.ticketing.user.enums.UserRole;
 
 import jakarta.persistence.Column;
@@ -35,4 +36,8 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "user_role",length = 20)
 	private UserRole userRole;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "account_status")
+	private AccountStatus accountStatus;
 }
