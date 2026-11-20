@@ -20,7 +20,7 @@ public class TicketMapper {
             assigneeName = ticket.getAssignee().getFullName();
         }
 
-        return new TicketResponse(
+        TicketResponse response = new TicketResponse(
                 ticket.getId(),
                 ticket.getTitle(),
                 ticket.getDescription(),
@@ -32,6 +32,19 @@ public class TicketMapper {
                 ticket.getCreatedAt(),
                 ticket.getUpdatedAt()
         );
+
+        if (ticket.getProject() != null) {
+
+            response.setProjectId(ticket.getProject().getId());
+
+            response.setProjectName(
+                    ticket.getProject().getProjectName());
+
+            response.setProjectKey(
+                    ticket.getProject().getProjectKey());
+        }
+
+        return response;
     }
 
     // Convert TicketRequest DTO into Ticket entity

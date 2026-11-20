@@ -28,18 +28,21 @@ public class TicketRequest {
 
     @FutureOrPresent(message = "Due date cannot be in the past")
     private LocalDate dueDate;
+    
+    private Long projectId;
 
 	public TicketRequest() {
 		
 	}
 
-	public TicketRequest(String title, String description,TicketPriority priority, TicketStatus status,Long assigneeId, LocalDate dueDate) {
+	public TicketRequest(String title, String description,TicketPriority priority, TicketStatus status,Long assigneeId, LocalDate dueDate, Long projectId) {
 		this.title = title;
 		this.description = description;
 		this.priority = priority;
 		this.status = status;
 		this.assigneeId = assigneeId;
 		this.dueDate = dueDate;
+		this.projectId = projectId;
 	}
 
 	public String getTitle() {
@@ -88,5 +91,15 @@ public class TicketRequest {
 
 	public void setDueDate(LocalDate dueDate) {
 		this.dueDate = dueDate;
+	}
+
+	public Long getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Long projectId) {
+		this.projectId = projectId;
 	}  
+	
+	
 }

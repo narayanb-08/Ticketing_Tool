@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+import com.sumpositive.ticketing.project.entity.Project;
 import com.sumpositive.ticketing.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -48,8 +49,8 @@ public class Ticket {
 	@JoinColumn(name = "created_by", nullable = false, updatable = false)
 	private User createdBy;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "assignee_id")
+	@ManyToOne
+	@JoinColumn(name = "assignee_id", nullable = true)
 	private User assignee;
 	
 	@Column(name = "due_date")
@@ -60,6 +61,10 @@ public class Ticket {
 	
 	@Column(nullable = false, updatable = false)
 	private OffsetDateTime updatedAt;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "project_id")
+	private Project project;
 	
 	public Ticket() {
 		

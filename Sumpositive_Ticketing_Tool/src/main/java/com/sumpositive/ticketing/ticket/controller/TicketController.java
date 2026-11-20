@@ -29,105 +29,98 @@ import com.sumpositive.ticketing.ticket.service.TicketService;
 @RequestMapping("/api/tickets")
 public class TicketController {
 
-    private final TicketService ticketService;
+	private final TicketService ticketService;
 
-    public TicketController(TicketService ticketService) {
-        this.ticketService = ticketService;
-    }
+	public TicketController(TicketService ticketService) {
+		this.ticketService = ticketService;
+	}
 
-  
-    @PostMapping("/createTicket")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<TicketResponse> createTicket(@Valid @RequestBody TicketRequest request) {
-        TicketResponse response = ticketService.createTicket(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+	@PostMapping("/createTicket")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<TicketResponse> createTicket(@Valid @RequestBody TicketRequest request) {
+		TicketResponse response = ticketService.createTicket(request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
 
-    
-    @GetMapping("/getAllTickets")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<List<TicketResponse>> getAllTickets() {
-        return ResponseEntity.ok(ticketService.getAllTickets());
-    }
+	@GetMapping("/getAllTickets")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<List<TicketResponse>> getAllTickets() {
+		return ResponseEntity.ok(ticketService.getAllTickets());
+	}
 
-   
-    @GetMapping("/getTicketById/{id}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.getTicketById(id));
-    }
+	@GetMapping("/getTicketById/{id}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
+		return ResponseEntity.ok(ticketService.getTicketById(id));
+	}
 
-    
-    @PutMapping("/updateTicketById/{id}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<TicketResponse> updateTicket(@PathVariable Long id,@RequestBody TicketRequest request) {
-        return ResponseEntity.ok(ticketService.updateTicket(id, request));
-    }
+	@PutMapping("/updateTicketById/{id}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<TicketResponse> updateTicket(@PathVariable Long id, @RequestBody TicketRequest request) {
+		return ResponseEntity.ok(ticketService.updateTicket(id, request));
+	}
 
+	@DeleteMapping("/deleteTicketById/{id}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
+		ticketService.deleteTicket(id);
+		return ResponseEntity.noContent().build();
+	}
 
-    @DeleteMapping("/deleteTicketById/{id}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
-        ticketService.deleteTicket(id);
-        return ResponseEntity.noContent().build();
-    }
+	@GetMapping("/getTicketByStatus/{status}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<List<TicketResponse>> getTicketsByStatus(@PathVariable TicketStatus status) {
+		return ResponseEntity.ok(ticketService.getTicketsByStatus(status));
+	}
 
-    
-    @GetMapping("/getTicketByStatus/{status}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<List<TicketResponse>> getTicketsByStatus(@PathVariable TicketStatus status) {
-        return ResponseEntity.ok(ticketService.getTicketsByStatus(status));
-    }
+	@GetMapping("/getTicketByPriority/{priority}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<List<TicketResponse>> getTicketsByPriority(@PathVariable TicketPriority priority) {
+		return ResponseEntity.ok(ticketService.getTicketsByPriority(priority));
+	}
 
+	@GetMapping("/getTicketByAssignee/{assigneeId}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<List<TicketResponse>> getTicketsByAssignee(@PathVariable Long assigneeId) {
+		return ResponseEntity.ok(ticketService.getTicketsByAssignee(assigneeId));
+	}
 
-    @GetMapping("/getTicketByPriority/{priority}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<List<TicketResponse>> getTicketsByPriority(@PathVariable TicketPriority priority) {
-        return ResponseEntity.ok(ticketService.getTicketsByPriority(priority));
-    }
+	@GetMapping("/filter")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<List<TicketResponse>> filterTickets(@RequestParam TicketStatus status,
+			@RequestParam TicketPriority priority) {
+		return ResponseEntity.ok(ticketService.getTicketsByStatusAndPriority(status, priority));
+	}
 
-   
-    @GetMapping("/getTicketByAssignee/{assigneeId}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<List<TicketResponse>> getTicketsByAssignee(@PathVariable Long assigneeId) {
-        return ResponseEntity.ok(ticketService.getTicketsByAssignee(assigneeId));
-    }
+	@GetMapping("/assignee/{assigneeId}/status/{status}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<List<TicketResponse>> getTicketsByAssigneeAndStatus(@PathVariable Long assigneeId,
+			@PathVariable TicketStatus status) {
+		return ResponseEntity.ok(ticketService.getTicketsByAssigneeAndStatus(assigneeId, status));
+	}
 
-    
-    @GetMapping("/filter")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<List<TicketResponse>> filterTickets( @RequestParam TicketStatus status,@RequestParam TicketPriority priority) {
-        return ResponseEntity.ok( ticketService.getTicketsByStatusAndPriority(status, priority));
-    }
+	@PatchMapping("/updateStatus/{id}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<TicketResponse> updateTicketStatus(@PathVariable Long id,
+			@RequestBody TicketStatusUpdateRequest request) {
+		return ResponseEntity.ok(ticketService.updateTicketStatus(id, request.getStatus()));
+	}
 
-    
-    @GetMapping("/assignee/{assigneeId}/status/{status}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<List<TicketResponse>>
-            getTicketsByAssigneeAndStatus(@PathVariable Long assigneeId,@PathVariable TicketStatus status) {
-        return ResponseEntity.ok( ticketService.getTicketsByAssigneeAndStatus(
-                        assigneeId, status));
-    }
+	@PatchMapping("/{id}/assign/{assigneeId}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<TicketResponse> assignTicket(@PathVariable Long id, @PathVariable Long assigneeId) {
+		return ResponseEntity.ok(ticketService.assignTicket(id, assigneeId));
+	}
 
+	@PatchMapping("/unassign/{id}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<TicketResponse> unassignTicket(@PathVariable Long id) {
+		return ResponseEntity.ok(ticketService.unassignTicket(id));
+	}
 
-    @PatchMapping("/updateStatus/{id}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<TicketResponse> updateTicketStatus(@PathVariable Long id,@RequestBody TicketStatusUpdateRequest request) {
-        return ResponseEntity.ok( ticketService.updateTicketStatus( id, request.getStatus()));
-    }
-
-    
-    @PatchMapping("/{id}/assign/{assigneeId}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<TicketResponse> assignTicket(@PathVariable Long id, @PathVariable Long assigneeId) {
-        return ResponseEntity.ok(ticketService.assignTicket(id, assigneeId));
-    }
-
-
-    @PatchMapping("/unassign/{id}")
-    @PreAuthorize("@accountStatusSecurity.isApproved()")
-    public ResponseEntity<TicketResponse> unassignTicket(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.unassignTicket(id));
-    }
-
+	@GetMapping("/project/{projectId}")
+	@PreAuthorize("@accountStatusSecurity.isApproved()")
+	public ResponseEntity<List<TicketResponse>> getTicketsByProject(@PathVariable Long projectId) {
+		return ResponseEntity.ok(ticketService.getTicketsByProject(projectId));
+	}
 }

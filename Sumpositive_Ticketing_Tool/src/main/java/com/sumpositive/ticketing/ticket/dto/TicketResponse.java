@@ -18,6 +18,10 @@ public class TicketResponse {
     private LocalDate dueDate;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
+    private Long projectId;
+    private String projectName;
+    private String projectKey;
+    
 	public TicketResponse() {
 		
 	}
@@ -95,4 +99,27 @@ public class TicketResponse {
 	public void setUpdatedAt(OffsetDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	} 
+	public Long getProjectId() {
+	    return projectId;
+	}
+
+	public void setProjectId(Long projectId) {
+	    this.projectId = projectId;
+	}
+
+	public String getProjectName() {
+	    return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+	    this.projectName = projectName;
+	}
+
+	public String getProjectKey() {
+	    return projectKey;
+	}
+
+	public void setProjectKey(String projectKey) {
+	    this.projectKey = projectKey;
+	}
 }
