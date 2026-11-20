@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +15,12 @@ import com.sumpositive.ticketing.user.dto.AdminCreateUserRequest;
 import com.sumpositive.ticketing.user.dto.UserRequest;
 import com.sumpositive.ticketing.user.dto.UserResponse;
 import com.sumpositive.ticketing.user.entity.User;
+import com.sumpositive.ticketing.user.enums.AccountStatus;
 import com.sumpositive.ticketing.user.enums.UserRole;
 import com.sumpositive.ticketing.user.mapper.UserMapper;
 import com.sumpositive.ticketing.user.repository.UserRepository;
+
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 
 
 @Service
@@ -49,6 +51,8 @@ public class UserService implements UserServiceIMPL{
 		user.setFullName(request.getFullName());
 		user.setEmail(request.getEmail());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		user.setUserRole(UserRole.EMPLOYEE);
+		user.setAccountStatus(AccountStatus.PENDING);
 		user.setActive(true);
 		
 		User saveUser = userRepository.save(user);
@@ -91,8 +95,9 @@ public class UserService implements UserServiceIMPL{
 	@Override
 	public void deleteUser(Long id) {
 		User user = findUserById(id);
-		
-		userRepository.delete(user);	
+
+		user.setActive(false);
+		userRepository.save(user);
 	}
 
 	@Override
@@ -132,6 +137,7 @@ public class UserService implements UserServiceIMPL{
 	    user.setEmail(request.getEmail());
 	    user.setPassword(passwordEncoder.encode(request.getPassword()));
 	    user.setUserRole(request.getRole());
+	    user.setAccountStatus(AccountStatus.APPROVED);
 	    user.setActive(true);
 
 	    User savedUser = userRepository.save(user);
@@ -168,6 +174,7 @@ public class UserService implements UserServiceIMPL{
 	    user.setEmail(request.getEmail());
 	    user.setPassword(passwordEncoder.encode(request.getPassword()));
 	    user.setUserRole(UserRole.ADMIN);
+	    user.setAccountStatus(AccountStatus.APPROVED);
 	    user.setActive(true);
 
 	    User savedUser = userRepository.save(user);
