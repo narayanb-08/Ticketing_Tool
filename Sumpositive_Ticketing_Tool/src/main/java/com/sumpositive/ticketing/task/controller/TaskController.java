@@ -35,7 +35,7 @@ public class TaskController {
     }
 
     @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEADER'))")
-    @PostMapping
+    @PostMapping("/createTask")
     public ResponseEntity<TaskResponse> createTask(
             @Valid @RequestBody TaskRequest request) {
 
@@ -44,7 +44,7 @@ public class TaskController {
                 HttpStatus.CREATED);
     }
 
-    @GetMapping("/{taskId}")
+    @GetMapping("/getTaskById/{taskId}")
     @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEADER'))")
     public ResponseEntity<TaskResponse> getTaskById(
             @PathVariable Long taskId) {
@@ -52,7 +52,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTaskById(taskId));
     }
 
-    @GetMapping
+    @GetMapping("/getAllTasks")
     @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEADER'))")
     public ResponseEntity<List<TaskResponse>> getAllTasks() {
 
@@ -66,7 +66,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getMyTasks());
     }
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/getTaskByStatus/{status}")
     @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEADER'))")
     public ResponseEntity<List<TaskResponse>> getTasksByStatus(
             @PathVariable TaskStatus status) {
@@ -74,7 +74,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByStatus(status));
     }
 
-    @PutMapping("/{taskId}")
+    @PutMapping("/updateTask/{taskId}")
     @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEADER'))")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable Long taskId,
@@ -83,7 +83,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.updateTask(taskId, request));
     }
 
-    @PatchMapping("/{taskId}/status")
+    @PatchMapping("updateStatus/{taskId}/status")
     @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEADER'))")
     public ResponseEntity<TaskResponse> updateTaskStatus(
             @PathVariable Long taskId,
@@ -93,7 +93,7 @@ public class TaskController {
                 taskService.updateTaskStatus(taskId, status));
     }
 
-    @DeleteMapping("/{taskId}")
+    @DeleteMapping("deleteTask/{taskId}")
     @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER'))")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
 
