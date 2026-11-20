@@ -4,8 +4,12 @@ package com.sumpositive.ticketing.common.exception;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,6 +18,8 @@ import com.sumpositive.ticketing.common.dto.ApiErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
    
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -68,9 +74,28 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException exception) {
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "You are not authorized to perform this action"
+        );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException exception) {
+        logger.warn("A request violated a database constraint", exception);
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                "The request conflicts with existing data or references"
+        );
+    }
+
     
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneralException(Exception exception) {
+        logger.error("Unhandled request error", exception);
         return buildErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred"
