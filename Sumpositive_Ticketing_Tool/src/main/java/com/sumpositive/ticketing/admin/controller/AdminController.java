@@ -31,7 +31,7 @@ public class AdminController {
     }
 
     // Create the first ADMIN account
-    @PostMapping("/setup")
+    @PostMapping("/createFirstAdmin")
     public ResponseEntity<UserResponse> createFirstAdmin(
             @Valid @RequestBody CreateAdminRequest request,
             @RequestHeader("X-ADMIN-SETUP-KEY") String setupKey) {
@@ -44,7 +44,7 @@ public class AdminController {
 
     // Create additional ADMIN accounts
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping("/createAdmin")
     public ResponseEntity<UserResponse> createAdmin(
             @Valid @RequestBody CreateAdminRequest request) {
 
@@ -54,7 +54,7 @@ public class AdminController {
     }
     
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/pending-employees")
+    @GetMapping("/getPending-employees")
     public ResponseEntity<List<UserResponse>> getPendingEmployees() {
 
         return ResponseEntity.ok(
