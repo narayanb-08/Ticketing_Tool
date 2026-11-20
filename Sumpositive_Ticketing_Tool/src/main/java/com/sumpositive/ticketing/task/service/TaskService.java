@@ -26,4 +26,6 @@ public interface TaskService {
     void deleteTask(Long taskId);
     
     TaskResponse updateMyTaskStatus(Long taskId, TaskStatus status);
+    
+    List<TaskResponse> getTasksByProject(Long projectId);
 }

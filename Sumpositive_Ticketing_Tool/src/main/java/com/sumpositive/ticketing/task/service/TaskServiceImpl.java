@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sumpositive.ticketing.project.entity.Project;
+import com.sumpositive.ticketing.project.repository.ProjectRepository;
 import com.sumpositive.ticketing.task.dto.TaskRequest;
 import com.sumpositive.ticketing.task.dto.TaskResponse;
 import com.sumpositive.ticketing.task.entity.Task;
@@ -24,227 +26,252 @@ import com.sumpositive.ticketing.user.repository.UserRepository;
 @Transactional
 public class TaskServiceImpl implements TaskService {
 
-    private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
-    private final TicketRepository ticketRepository;
+	private final TaskRepository taskRepository;
+	private final UserRepository userRepository;
+	private final TicketRepository ticketRepository;
+	private final ProjectRepository projectRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository,
-                           UserRepository userRepository, TicketRepository ticketRepository) {
-        this.taskRepository = taskRepository;
-        this.userRepository = userRepository;
+	public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository,
+			TicketRepository ticketRepository, ProjectRepository projectRepository) {
+
+		this.taskRepository = taskRepository;
+		this.userRepository = userRepository;
 		this.ticketRepository = ticketRepository;
-    }
+		this.projectRepository = projectRepository;
+	}
 
-    @Override
-    public TaskResponse createTask(TaskRequest request) {
+	@Override
+	public TaskResponse createTask(TaskRequest request) {
 
-        User currentUser = getCurrentUser();
+		User currentUser = getCurrentUser();
 
-        Task task = new Task();
+		Task task = new Task();
 
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setPriority(request.getPriority());
-        task.setDueDate(request.getDueDate());
-        task.setStatus(TaskStatus.OPEN);
-        task.setCreatedBy(currentUser);
+		task.setTitle(request.getTitle());
+		task.setDescription(request.getDescription());
+		task.setPriority(request.getPriority());
+		task.setDueDate(request.getDueDate());
+		task.setStatus(TaskStatus.OPEN);
+		task.setCreatedBy(currentUser);
 
-        if (request.getAssignedToId() != null) {
-            task.setAssignedTo(getValidAssignedUser(request.getAssignedToId()));
-        }
+		
+		if (request.getProjectId() != null) {
 
-        if (request.getTicketId() != null) {
+		    Project project = projectRepository.findById(request.getProjectId())
+		            .orElseThrow(() ->
+		                    new IllegalArgumentException("Project not found"));
 
-            Ticket ticket = ticketRepository.findById(request.getTicketId())
-                    .orElseThrow(() ->
-                            new IllegalArgumentException("Ticket not found"));
+		    task.setProject(project);
+		}
+		
+		if (request.getAssignedToId() != null) {
+			task.setAssignedTo(getValidAssignedUser(request.getAssignedToId()));
+		}
 
-            task.setTicket(ticket);
-        }
+		if (request.getTicketId() != null) {
 
-        return mapToResponse(taskRepository.save(task));
-    }
+			Ticket ticket = ticketRepository.findById(request.getTicketId())
+					.orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
 
-    @Override
-    @Transactional(readOnly = true)
-    public TaskResponse getTaskById(Long taskId) {
+			task.setTicket(ticket);
+		}
+		
+		
 
-        Task task = findTask(taskId);
+		return mapToResponse(taskRepository.save(task));
+	}
 
-        return mapToResponse(task);
-    }
+	@Override
+	@Transactional(readOnly = true)
+	public TaskResponse getTaskById(Long taskId) {
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<TaskResponse> getAllTasks() {
+		Task task = findTask(taskId);
 
-        return taskRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
+		return mapToResponse(task);
+	}
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<TaskResponse> getMyTasks() {
+	@Override
+	@Transactional(readOnly = true)
+	public List<TaskResponse> getAllTasks() {
 
-        User currentUser = getCurrentUser();
+		return taskRepository.findAll().stream().map(this::mapToResponse).toList();
+	}
 
-        return taskRepository.findByAssignedTo(currentUser)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
+	@Override
+	@Transactional(readOnly = true)
+	public List<TaskResponse> getMyTasks() {
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<TaskResponse> getTasksByStatus(TaskStatus status) {
+		User currentUser = getCurrentUser();
 
-        return taskRepository.findByStatus(status)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
+		return taskRepository.findByAssignedTo(currentUser).stream().map(this::mapToResponse).toList();
+	}
 
-    @Override
-    public TaskResponse updateTask(Long taskId, TaskRequest request) {
+	@Override
+	@Transactional(readOnly = true)
+	public List<TaskResponse> getTasksByStatus(TaskStatus status) {
 
-        Task task = findTask(taskId);
+		return taskRepository.findByStatus(status).stream().map(this::mapToResponse).toList();
+	}
 
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setPriority(request.getPriority());
-        task.setDueDate(request.getDueDate());
+	@Override
+	public TaskResponse updateTask(Long taskId, TaskRequest request) {
 
-        if (request.getAssignedToId() != null) {
-            task.setAssignedTo(getValidAssignedUser(request.getAssignedToId()));
-        } else {
-            task.setAssignedTo(null);
-        }
+		Task task = findTask(taskId);
 
-        if (request.getTicketId() != null) {
+		task.setTitle(request.getTitle());
+		task.setDescription(request.getDescription());
+		task.setPriority(request.getPriority());
+		task.setDueDate(request.getDueDate());
 
-            Ticket ticket = ticketRepository.findById(request.getTicketId())
-                    .orElseThrow(() ->
-                            new IllegalArgumentException("Ticket not found"));
+		if (request.getProjectId() != null) {
 
-            task.setTicket(ticket);
+		    Project project = projectRepository.findById(request.getProjectId())
+		            .orElseThrow(() ->
+		                    new IllegalArgumentException("Project not found"));
 
-        } else {
-            task.setTicket(null);
-        }
+		    task.setProject(project);
+		}
+		
+		if (request.getAssignedToId() != null) {
+			task.setAssignedTo(getValidAssignedUser(request.getAssignedToId()));
+		} else {
+			task.setAssignedTo(null);
+		}
 
-        task.setUpdatedAt(LocalDateTime.now());
+		if (request.getTicketId() != null) {
 
-        return mapToResponse(taskRepository.save(task));
-    }
+			Ticket ticket = ticketRepository.findById(request.getTicketId())
+					.orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
 
-    @Override
-    public TaskResponse updateTaskStatus(Long taskId, TaskStatus status) {
+			task.setTicket(ticket);
 
-        Task task = findTask(taskId);
+		} else {
+			task.setTicket(null);
+		}
 
-        task.setStatus(status);
-        task.setUpdatedAt(LocalDateTime.now());
+		task.setUpdatedAt(LocalDateTime.now());
 
-        return mapToResponse(taskRepository.save(task));
-    }
+		return mapToResponse(taskRepository.save(task));
+	}
 
-    @Override
-    public void deleteTask(Long taskId) {
+	@Override
+	public TaskResponse updateTaskStatus(Long taskId, TaskStatus status) {
 
-        Task task = findTask(taskId);
+		Task task = findTask(taskId);
 
-        taskRepository.delete(task);
-    }
+		task.setStatus(status);
+		task.setUpdatedAt(LocalDateTime.now());
 
-    private Task findTask(Long taskId) {
+		return mapToResponse(taskRepository.save(task));
+	}
 
-        return taskRepository.findById(taskId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Task not found with ID: " + taskId));
-    }
+	@Override
+	public void deleteTask(Long taskId) {
 
-    private User getCurrentUser() {
+		Task task = findTask(taskId);
 
-        String email = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+		taskRepository.delete(task);
+	}
 
-        return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Logged-in user not found"));
-    }
+	private Task findTask(Long taskId) {
 
-    private TaskResponse mapToResponse(Task task) {
+		return taskRepository.findById(taskId)
+				.orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + taskId));
+	}
 
-        TaskResponse response = new TaskResponse();
+	private User getCurrentUser() {
 
-        response.setId(task.getId());
-        response.setTitle(task.getTitle());
-        response.setDescription(task.getDescription());
-        response.setStatus(task.getStatus());
-        response.setPriority(task.getPriority());
-        response.setDueDate(task.getDueDate());
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (task.getAssignedTo() != null) {
-            response.setAssignedToId(task.getAssignedTo().getId());
-            response.setAssignedToName(task.getAssignedTo().getFullName());
-        }
+		return userRepository.findByEmail(email)
+				.orElseThrow(() -> new IllegalArgumentException("Logged-in user not found"));
+	}
 
-        if (task.getCreatedBy() != null) {
-            response.setCreatedById(task.getCreatedBy().getId());
-            response.setCreatedByName(task.getCreatedBy().getFullName());
-        }
-        if (task.getTicket() != null) {
-            response.setTicketId(task.getTicket().getId());
-        }
+	private TaskResponse mapToResponse(Task task) {
 
-        response.setCreatedAt(task.getCreatedAt());
-        response.setUpdatedAt(task.getUpdatedAt());
+		TaskResponse response = new TaskResponse();
 
-        return response;
-    }
-    
-    @Override
-    public TaskResponse updateMyTaskStatus(Long taskId, TaskStatus status) {
+		response.setId(task.getId());
+		response.setTitle(task.getTitle());
+		response.setDescription(task.getDescription());
+		response.setStatus(task.getStatus());
+		response.setPriority(task.getPriority());
+		response.setDueDate(task.getDueDate());
 
-        User currentUser = getCurrentUser();
+		if (task.getAssignedTo() != null) {
+			response.setAssignedToId(task.getAssignedTo().getId());
+			response.setAssignedToName(task.getAssignedTo().getFullName());
+		}
 
-        Task task = findTask(taskId);
+		if (task.getCreatedBy() != null) {
+			response.setCreatedById(task.getCreatedBy().getId());
+			response.setCreatedByName(task.getCreatedBy().getFullName());
+		}
+		if (task.getTicket() != null) {
+			response.setTicketId(task.getTicket().getId());
+		}
+		
+		if (task.getProject() != null) {
 
-        if (task.getAssignedTo() == null
-                || !task.getAssignedTo().getId().equals(currentUser.getId())) {
-            throw new org.springframework.security.access.AccessDeniedException(
-                    "You can only update tasks assigned to you");
-        }
+		    response.setProjectId(task.getProject().getId());
 
-        task.setStatus(status);
-        task.setUpdatedAt(LocalDateTime.now());
+		    response.setProjectName(
+		            task.getProject().getProjectName());
 
-        return mapToResponse(taskRepository.save(task));
-    }
-    
-    private User getValidAssignedUser(Long userId) {
+		    response.setProjectKey(
+		            task.getProject().getProjectKey());
+		}
 
-        User assignedUser = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Assigned user not found"));
+		response.setCreatedAt(task.getCreatedAt());
+		response.setUpdatedAt(task.getUpdatedAt());
 
-        if (!assignedUser.isActive()
-                || assignedUser.getAccountStatus() != AccountStatus.APPROVED) {
+		return response;
+	}
 
-            throw new IllegalArgumentException(
-                    "Cannot assign task to an inactive or unapproved user");
-        }
+	@Override
+	public TaskResponse updateMyTaskStatus(Long taskId, TaskStatus status) {
 
-        if (assignedUser.getUserRole() == null
-                || assignedUser.getUserRole() == UserRole.HR) {
+		User currentUser = getCurrentUser();
 
-            throw new IllegalArgumentException(
-                    "This user role is not allowed to receive tasks");
-        }
+		Task task = findTask(taskId);
 
-        return assignedUser;
-    }
+		if (task.getAssignedTo() == null || !task.getAssignedTo().getId().equals(currentUser.getId())) {
+			throw new org.springframework.security.access.AccessDeniedException(
+					"You can only update tasks assigned to you");
+		}
+
+		task.setStatus(status);
+		task.setUpdatedAt(LocalDateTime.now());
+
+		return mapToResponse(taskRepository.save(task));
+	}
+
+	private User getValidAssignedUser(Long userId) {
+
+		User assignedUser = userRepository.findById(userId)
+				.orElseThrow(() -> new IllegalArgumentException("Assigned user not found"));
+
+		if (!assignedUser.isActive() || assignedUser.getAccountStatus() != AccountStatus.APPROVED) {
+
+			throw new IllegalArgumentException("Cannot assign task to an inactive or unapproved user");
+		}
+
+		if (assignedUser.getUserRole() == null || assignedUser.getUserRole() == UserRole.HR) {
+
+			throw new IllegalArgumentException("This user role is not allowed to receive tasks");
+		}
+
+		return assignedUser;
+	}
+	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<TaskResponse> getTasksByProject(Long projectId) {
+
+	    return taskRepository.findByProjectId(projectId)
+	            .stream()
+	            .map(this::mapToResponse)
+	            .toList();
+	}
 }

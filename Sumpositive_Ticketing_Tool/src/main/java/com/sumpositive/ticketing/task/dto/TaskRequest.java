@@ -30,4 +30,6 @@ public class TaskRequest {
     private Long assignedToId;
 
     private Long ticketId;
+    
+    private Long projectId;
 }

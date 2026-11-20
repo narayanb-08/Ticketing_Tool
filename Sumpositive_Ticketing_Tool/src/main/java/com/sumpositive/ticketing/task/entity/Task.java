@@ -1,9 +1,9 @@
-
 package com.sumpositive.ticketing.task.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.sumpositive.ticketing.project.entity.Project;
 import com.sumpositive.ticketing.ticket.entity.Ticket;
 import com.sumpositive.ticketing.user.entity.User;
 
@@ -61,4 +61,8 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
 }

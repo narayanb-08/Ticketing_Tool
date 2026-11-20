@@ -37,4 +37,10 @@ public class TaskResponse {
     private LocalDateTime updatedAt;
     
     private Long ticketId;
+    
+    private Long projectId;
+
+    private String projectName;
+
+    private String projectKey;
 }

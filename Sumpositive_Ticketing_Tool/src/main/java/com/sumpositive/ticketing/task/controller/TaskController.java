@@ -111,4 +111,13 @@ public class TaskController {
         return ResponseEntity.ok(
                 taskService.updateMyTaskStatus(taskId, status));
     }
+    
+    @GetMapping("/project/{projectId}")
+    @PreAuthorize("@accountStatusSecurity.isApproved() and (hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEADER'))")
+    public ResponseEntity<List<TaskResponse>> getTasksByProject(
+            @PathVariable Long projectId) {
+
+        return ResponseEntity.ok(
+                taskService.getTasksByProject(projectId));
+    }
 }
