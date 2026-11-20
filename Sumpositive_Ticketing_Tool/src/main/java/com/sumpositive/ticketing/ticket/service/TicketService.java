@@ -3,6 +3,9 @@ package com.sumpositive.ticketing.ticket.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ public class TicketService {
 
     public TicketResponse createTicket(TicketRequest request) {
         Ticket ticket = ticketMapper.toEntity(request);
+        ticket.setCreatedBy(getAuthenticatedUser());
 
         if (request.getAssigneeId() != null) {
             User user = findActiveUserById(request.getAssigneeId());
@@ -42,6 +46,17 @@ public class TicketService {
 
         Ticket savedTicket = ticketRepository.save(ticket);
         return ticketMapper.toResponse(savedTicket);
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("An authenticated user is required to create a ticket");
+        }
+
+        return userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Authenticated user was not found"));
     }
 
  
