@@ -44,6 +44,10 @@ public class Ticket {
 	@Column(nullable = false, length = 20)
 	private TicketPriority priority = TicketPriority.MEDIUM;
 	
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "created_by", nullable = false, updatable = false)
+	private User createdBy;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "assignee_id")
 	private User assignee;
