@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.sumpositive.ticketing.auth.dto.RegisterRequest;
 import com.sumpositive.ticketing.common.exception.DuplicateResourceException;
 import com.sumpositive.ticketing.common.exception.ResourceNotFoundException;
+import com.sumpositive.ticketing.ticket.entity.Ticket;
+import com.sumpositive.ticketing.ticket.repository.TicketRepository;
 import com.sumpositive.ticketing.user.dto.AdminCreateUserRequest;
 import com.sumpositive.ticketing.user.dto.UserRequest;
 import com.sumpositive.ticketing.user.dto.UserResponse;
@@ -29,15 +31,17 @@ public class UserService implements UserServiceIMPL{
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final TicketRepository ticketRepository;
 	
 	@Value("${app.admin-setup-key}")
 	private String adminSetupKey;
 	
 	
-	public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+	public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, TicketRepository ticketRepository) {
 		this.userRepository = userRepository;
 		this.userMapper = userMapper;
 		this.passwordEncoder = passwordEncoder;
+		this.ticketRepository = ticketRepository;
 	}
 
 	@Override
@@ -93,11 +97,20 @@ public class UserService implements UserServiceIMPL{
 	}
 
 	@Override
+	@Transactional
 	public void deleteUser(Long id) {
-		User user = findUserById(id);
 
-		user.setActive(false);
-		userRepository.save(user);
+	    User user = findUserById(id);
+
+	    List<Ticket> tickets = ticketRepository.findByAssigneeId(id);
+
+	    for (Ticket ticket : tickets) {
+	        ticket.setAssignee(null);
+	    }
+
+	    ticketRepository.saveAll(tickets);
+
+	    userRepository.delete(user);
 	}
 
 	@Override
