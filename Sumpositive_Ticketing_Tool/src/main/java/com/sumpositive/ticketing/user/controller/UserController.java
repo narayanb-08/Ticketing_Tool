@@ -33,7 +33,7 @@ public class UserController {
 				this.userService = userService;
 			}
 			
-			@PostMapping("/create")
+			@PostMapping("/createUser")
 			public ResponseEntity<UserResponse> createUser(@RequestBody RegisterRequest request){
 				UserResponse response = userService.createUser(request);
 				
@@ -47,7 +47,7 @@ public class UserController {
 				return ResponseEntity.ok(users);
 			}
 			
-			@GetMapping("/getById/{id}")
+			@GetMapping("/getUserById/{id}")
 			public ResponseEntity<UserResponse> getUserById(@PathVariable Long id){
 				UserResponse response = userService.getUserById(id);
 				
@@ -69,28 +69,28 @@ public class UserController {
 				return ResponseEntity.noContent().build();
 			}
 			
-			@PatchMapping("/activate/{id}")
+			@PatchMapping("/activateById/{id}")
 			public ResponseEntity<UserResponse> activateUser(@PathVariable Long id){
 				UserResponse response = userService.activateUser(id);
 				
 				return ResponseEntity.ok(response);
 			}
 			
-			@PatchMapping("/deactivate/{id}")
+			@PatchMapping("/deactivateById/{id}")
 			public ResponseEntity<UserResponse> deactivateUser(@PathVariable Long id){
 				UserResponse response = userService.deactivateUser(id);
 				
 				return ResponseEntity.ok(response);
 			}
 			
-			@PostMapping("/admin/create")
+			@PostMapping("/createUserByAdmin")
 			public ResponseEntity<UserResponse> createUserByAdmin(@Valid @RequestBody AdminCreateUserRequest request) {
 			    UserResponse response = userService.createUserByAdmin(request);
 
 			    return ResponseEntity.status(HttpStatus.CREATED).body(response);
 			}
 			
-			@PostMapping("/first-admin")
+			@PostMapping("/createFirst-admin")
 			public ResponseEntity<UserResponse> createFirstAdmin(
 			        @RequestBody RegisterRequest request,
 			        @RequestHeader("X-Admin-Setup-Key") String setupKey) {
