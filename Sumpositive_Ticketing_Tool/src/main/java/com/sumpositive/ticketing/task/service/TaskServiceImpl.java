@@ -49,6 +49,10 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(TaskStatus.OPEN);
         task.setCreatedBy(currentUser);
 
+        if (request.getAssignedToId() != null) {
+            task.setAssignedTo(getValidAssignedUser(request.getAssignedToId()));
+        }
+
         if (request.getTicketId() != null) {
 
             Ticket ticket = ticketRepository.findById(request.getTicketId())
@@ -111,6 +115,12 @@ public class TaskServiceImpl implements TaskService {
         task.setDescription(request.getDescription());
         task.setPriority(request.getPriority());
         task.setDueDate(request.getDueDate());
+
+        if (request.getAssignedToId() != null) {
+            task.setAssignedTo(getValidAssignedUser(request.getAssignedToId()));
+        } else {
+            task.setAssignedTo(null);
+        }
 
         if (request.getTicketId() != null) {
 
